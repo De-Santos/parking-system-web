@@ -1,0 +1,18 @@
+@import url(https://fonts.googleapis.com/css?family=Poppins:300);
+
+.display-xy-centered {
+    /* font-family: "Poppins"; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container,
+.card {
+    width: 30rem;
+}
+
+p {
+    margin-bottom: 0;
+}
