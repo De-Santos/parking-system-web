@@ -20,5 +20,16 @@ export function validateInput(id) {
 }
 
 export function buildId(param) {
-  return param !== null ? `${uuid()}` : `${param}-${uuid()}`
+  return param !== null ? `${param}-${uuid()}` : `${uuid()}`
+}
+
+
+export function buildSmallId(param) {
+  return param !== null ? `${param}-${buildSmallUUID()}` : `${buildSmallUUID()}`
+}
+
+
+function buildSmallUUID() {
+  const fullUUID = uuid() // Generate a full UUID
+  return fullUUID.split('-')[0]
 }

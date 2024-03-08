@@ -2,17 +2,22 @@
 import { formatDateTime } from '@/scripts/time_scripts.js'
 import GoogleMap from '@/components/map/GoogleMap.vue'
 import EditParkingModal from '@/components/modal/EditParkingModal.vue'
-import { buildId } from '@/scripts/html_scripts.js'
+import { buildId, buildSmallId } from '@/scripts/html_scripts.js'
+import { ref } from 'vue'
 
 defineProps({
   data: {
     required: true
   }
 })
+
+const _edit_id = ref(buildId())
+
+
 </script>
 
 <template>
-  <div class="card info-card">
+  <div :id="buildSmallId(data.id)" class="card info-card">
     <div class="row">
       <div class="col-md-4">
         <GoogleMap :id="buildId(data.id)" :marker="data.coordinates" :map_control="{mapTypeControl: false}"></GoogleMap>
@@ -37,7 +42,7 @@ defineProps({
           <div class="d-inline-flex gap-2">
             <a href="filiate-info.html" class="btn btn-primary">View data</a>
             <button class="btn btn-success" data-bs-toggle="modal"
-                    data-bs-target="#editParkingInfoModal">Edit
+                    :data-bs-target="`#${_edit_id}`">Edit
             </button>
             <button class="btn btn-danger" data-bs-toggle="modal"
                     data-bs-target="#deleteParkingEntryModal">Delete
@@ -62,9 +67,8 @@ defineProps({
         </div>
       </div>
     </div>
+    <EditParkingModal :_id="_edit_id" :data="data"></EditParkingModal>
   </div>
-
-  <EditParkingModal :data="data"></EditParkingModal>
 </template>
 
 <style scoped>

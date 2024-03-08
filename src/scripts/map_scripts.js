@@ -1,8 +1,13 @@
+import { map_loader } from '@/assets/config/google_map_config.js'
+import store from '@/vuex/index.js'
+
 export async function initMap(elementId, markerPosition, controlProp) {
   let map
 
-  const { Map } = await google.maps.importLibrary('maps')
-  const { AdvancedMarkerElement } = await google.maps.importLibrary('marker')
+  const { Map } = await map_loader.importLibrary('maps')
+  const { AdvancedMarkerElement } = await map_loader.importLibrary('marker')
+
+
   map = new Map(document.getElementById(elementId), {
     zoom: 15,
     center: markerPosition,
@@ -22,11 +27,11 @@ export async function initMap(elementId, markerPosition, controlProp) {
 }
 
 
-export async function initMapSelector(elementId, center, c) {
-  const { Map } = await google.maps.importLibrary('maps')
+export async function initMapSelector(elementId, center) {
+  const { Map } = await map_loader.importLibrary('maps')
 
-  let map;
-  let m;
+  let map
+  let m
 
   map = new Map(document.getElementById(elementId), {
     zoom: 12,
@@ -36,25 +41,32 @@ export async function initMapSelector(elementId, center, c) {
 
   if (center !== null) {
     m = await addMarker(center, map)
+    await updateCoordinates({lat: center.lat, lng: center.lng})
   }
 
   map.addListener('click', async (event) => {
-    m.setMap(null)
+    if (m !== null) {
+      m.setMap(null)
+    }
     m = await addMarker(event.latLng, map)
-    c.value = event.latLng
+    await updateCoordinates({lat: event.latLng.lat(), lng: event.latLng.lng()})
   })
 }
 
 export async function addMarker(position, map) {
-  const { Marker } = await google.maps.importLibrary('marker')
-  return new Marker({
+  const { AdvancedMarkerElement } = await map_loader.importLibrary('marker')
+  const marker = new AdvancedMarkerElement({
     map,
     position: position
   })
+  marker.addListener('click', async () => {
+    marker.setMap(null)
+    await store.dispatch('setLatLng', {lat: 0, lng: 0})
+  })
+  return marker
 }
 
-export async function processMarkerSwap(event, map, mrk) {
-  mrk.value.setMap(null)
-  mrk.value = await addMarker(event.latLng, map.value)
-  console.log(mrk.value)
+async function updateCoordinates({lat, lng}){
+  await store.dispatch('setLatLng', {lat: lat, lng: lng})
+
 }

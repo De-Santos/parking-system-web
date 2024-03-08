@@ -1,7 +1,5 @@
 <script setup>
-import { onBeforeMount, ref, watch } from 'vue'
-import { addMarker, initMapSelector, processMarkerSwap } from '@/scripts/map_scripts.js'
-import { mapHolder } from '@/assets/config/google_map_config.js'
+import { initMapSelector } from '@/scripts/map_scripts.js'
 
 const props = defineProps({
   id: {
@@ -14,13 +12,8 @@ const props = defineProps({
   marker: {}
 })
 
-const latLng = ref({})
+initMapSelector(props.id, props.marker)
 
-initMapSelector(props.id, props.marker, latLng)
-
-watch(latLng, (o, n) => {
-  console.log(`old is: "${o}" new is: "${n}"`)
-})
 </script>
 
 <template>

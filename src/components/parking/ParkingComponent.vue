@@ -43,7 +43,7 @@ async function getParkingList() {
   if (dataResponse.value.error !== null) {
     toast.error("Failed to load parking list")
     console.log(dataResponse.value.error)
-    if (dataResponse.value.error.code === 401) {
+    if (dataResponse.value.error.response.status === 401) {
       cookies.remove(c_binds.auth_token)
       await router.push('/login')
     }
