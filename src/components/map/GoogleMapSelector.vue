@@ -9,10 +9,13 @@ const props = defineProps({
     required: false,
     default: 'bd-placeholder-img map-card rounded-start-top'
   },
-  marker: {}
+  marker: {},
+  rest_btn: {
+    required: true
+  }
 })
 
-initMapSelector(props.id, props.marker)
+initMapSelector(props.id, props.marker, props.rest_btn)
 
 </script>
 

@@ -27,11 +27,13 @@ export async function initMap(elementId, markerPosition, controlProp) {
 }
 
 
-export async function initMapSelector(elementId, center) {
+export async function initMapSelector(elementId, center, rbi) {
   const { Map } = await map_loader.importLibrary('maps')
+  const { LatLng } = await map_loader.importLibrary('core')
 
   let map
   let m
+  let c = center
 
   map = new Map(document.getElementById(elementId), {
     zoom: 12,
@@ -51,6 +53,17 @@ export async function initMapSelector(elementId, center) {
     m = await addMarker(event.latLng, map)
     await updateCoordinates({lat: event.latLng.lat(), lng: event.latLng.lng()})
   })
+
+  document.getElementById(rbi).addEventListener('click', async (event) => {
+    event.preventDefault(); // Prevents the default behavior of reloading the page
+
+    if (m !== null) {
+      m.setMap(null);
+    }
+    m = await addMarker(c, map);
+    map.panTo(new LatLng(c.lat, c.lng));
+    await updateCoordinates({lat: c.lat, lng: c.lng})
+  });
 }
 
 export async function addMarker(position, map) {

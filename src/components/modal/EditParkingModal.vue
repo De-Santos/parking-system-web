@@ -29,7 +29,8 @@ const lng = computed(() => {
   return store.state.lng
 })
 
-// const id = ref()
+const r_btn_id = ref(buildId())
+
 const parkingName = ref()
 const owner = ref()
 const address = ref()
@@ -49,6 +50,7 @@ onBeforeMount(() => {
   setData()
 })
 
+
 </script>
 
 <template>
@@ -65,9 +67,9 @@ onBeforeMount(() => {
         </div>
         <div class="modal-body">
           <div class="container-fluid">
-            <GoogleMapSelector :id="map_id" :marker="coordinates"
-                               clazz="bd-placeholder-img map-rectangle rounded-1 my-3"></GoogleMapSelector>
-            <div class="row">
+            <GoogleMapSelector :id="map_id" :marker="coordinates" :rest_btn="r_btn_id"
+                               clazz="bd-placeholder-img map-rectangle rounded-1 my-2"></GoogleMapSelector>
+            <div class="row align-items-end">
               <div class="col-3">
                 <label for="latitudeInput" class="form-label">Latitude</label>
                 <input id="latitudeInput" type="text" class="form-control" :value="lat" disabled>
@@ -75,6 +77,9 @@ onBeforeMount(() => {
               <div class="col-3">
                 <label for="longitudeInput" class="form-label">Longitude</label>
                 <input id="longitudeInput" type="text" class="form-control" :value="lng" disabled>
+              </div>
+              <div class="col-3">
+                <button :id="r_btn_id" class="btn btn-danger">Reset map</button>
               </div>
             </div>
           </div>
