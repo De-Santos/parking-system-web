@@ -54,6 +54,24 @@ export class ParkingDto {
   }
 }
 
+export class UpdateParkingDto {
+  id: number
+  parking_name: string
+  owner: string
+  address: string
+  capacity: number
+  coordinates: Coordinates
+
+  constructor(id: number, parking_name: string, owner: string, address: string, capacity: number, coordinates: Coordinates) {
+    this.id = id
+    this.parking_name = parking_name
+    this.owner = owner
+    this.address = address
+    this.capacity = capacity
+    this.coordinates = coordinates
+  }
+}
+
 export class SearchDto {
   limit: number
   page: number

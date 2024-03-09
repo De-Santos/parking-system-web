@@ -1,27 +1,25 @@
 <script setup>
 
 import { computed, onBeforeMount, ref} from 'vue'
-import { ParkingDto } from '@/data/structures.ts'
+import { Coordinates, UpdateParkingDto } from '@/data/structures.ts'
 import GoogleMapSelector from '@/components/map/GoogleMapSelector.vue'
 import { buildId, emulateClick } from '@/scripts/html_scripts.js'
 import store from '@/vuex/index.js'
 import { useToast } from 'vue-toastification'
+import { saveUpdatedParkingData } from '@/scripts/parking_scripts.js'
+import { checkErrorResponse } from '@/scripts/rest_scripts.js'
 
-const props = defineProps({
-  data: {
-    type: ParkingDto,
-    required: true
-  },
+defineProps({
   _id: {
     required: true,
     default: buildId()
   }
 })
 
-const title_id = ref(buildId())
-const map_id = buildId(props.data.id)
+const model = defineModel()
 
-// const lat_lng = ref({lat: 0, lng: 0})
+const title_id = ref(buildId())
+const map_id = buildId(model.value.id)
 
 const lat = computed(() => {
   return store.state.lat
@@ -40,12 +38,11 @@ const coordinates = ref()
 const toast = useToast()
 
 function setData() {
-  parkingName.value = props.data.parking_name
-  owner.value = props.data.owner
-  address.value = props.data.address
-  capacity.value = props.data.capacity
-  coordinates.value = props.data.coordinates
-
+  parkingName.value = model.value.parking_name
+  owner.value = model.value.owner
+  address.value = model.value.address
+  capacity.value = model.value.capacity
+  coordinates.value = model.value.coordinates
 }
 
 onBeforeMount(() => {
@@ -62,6 +59,20 @@ function resetMap() {
   toast.success("Map has been reset")
 }
 
+async function saveData() {
+  const dto = new UpdateParkingDto(
+    model.value.id,
+    parkingName.value,
+    owner.value,
+    address.value,
+    capacity.value,
+    new Coordinates(lat.value, lng.value)
+  )
+  const response = await saveUpdatedParkingData(dto)
+  checkErrorResponse(response.error, "Failed to update parking")
+  model.value = response.data
+  toast.success("Changes has been saved")
+}
 
 </script>
 
@@ -155,7 +166,7 @@ function resetMap() {
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
           <button type="button" class="btn btn-danger" @click="resetData">Reset</button>
-          <button type="submit" class="btn btn-success">Save</button>
+          <button type="submit" class="btn btn-success" @click.prevent="saveData">Save</button>
         </div>
       </form>
     </div>

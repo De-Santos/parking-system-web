@@ -7,8 +7,7 @@ import ParkingCardComponent from '@/components/parking/ParkingCardComponent.vue'
 import { fetchParkingList } from '@/scripts/parking_scripts.js'
 import { ParkingResponseHolder, SearchDto } from '@/data/structures.ts'
 import { useToast } from 'vue-toastification'
-import router from '@/router/index.js'
-import { c_binds, cookies } from '@/assets/config/cookies.js'
+import { checkErrorResponse } from '@/scripts/rest_scripts.js'
 
 const toast = useToast()
 const selectedSearchType = ref('street')
@@ -39,15 +38,8 @@ function searchSubmit() {
 onBeforeMount(getParkingList)
 
 async function getParkingList() {
-  dataResponse.value = await fetchParkingList(new SearchDto(limit.value, page.value, searchedText.value, null))
-  if (dataResponse.value.error !== null) {
-    toast.error("Failed to load parking list")
-    console.log(dataResponse.value.error)
-    if (dataResponse.value.error.response.status === 401) {
-      cookies.remove(c_binds.auth_token)
-      await router.push('/login')
-    }
-  }
+  dataResponse.value = await fetchParkingList(new SearchDto(limit.value, page.value, searchedText.value))
+  checkErrorResponse(dataResponse.value.error, "Failed to load parking list")
 }
 </script>
 

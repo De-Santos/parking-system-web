@@ -3,40 +3,51 @@ import { formatDateTime } from '@/scripts/time_scripts.js'
 import GoogleMap from '@/components/map/GoogleMap.vue'
 import EditParkingModal from '@/components/modal/EditParkingModal.vue'
 import { buildId, buildSmallId } from '@/scripts/html_scripts.js'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
-defineProps({
+const props = defineProps({
   data: {
     required: true
   }
 })
 
-const _edit_id = ref(buildId())
+const dataRef = ref(props.data)
 
+const _edit_id = ref(buildId())
+const googleMapKey = ref(0)
+
+function rerenderGoogleMap() {
+  googleMapKey.value += 1
+}
+
+watch(dataRef, () => {
+  rerenderGoogleMap()
+})
 
 </script>
 
 <template>
-  <div :id="buildSmallId(data.id)" class="card info-card">
+  <div :id="buildSmallId(dataRef.id)" class="card info-card">
     <div class="row">
       <div class="col-md-4">
-        <GoogleMap :id="buildId(data.id)" :marker="data.coordinates" :map_control="{mapTypeControl: false}"></GoogleMap>
+        <GoogleMap :id="buildId(dataRef.id)" :marker="dataRef.coordinates" :map_control="{mapTypeControl: false}"
+                   :key="googleMapKey"></GoogleMap>
       </div>
       <div class="col">
         <div class="card-body">
-          <h5 class="card-title">{{data.parking_name}}</h5>
+          <h5 class="card-title">{{ dataRef.parking_name }}</h5>
           <div class="card-text-holder">
             <p class="fs-5 fw-normal my-1">
               <span class="text-secondary">Owner: </span>
-              <span class="text-black">{{data.owner}}</span>
+              <span class="text-black">{{ dataRef.owner }}</span>
             </p>
             <p class="fs-5 fw-normal my-1">
               <span class="text-secondary">Address: </span>
-              <span class="text-black">{{data.address}}</span>
+              <span class="text-black">{{ dataRef.address }}</span>
             </p>
             <p class="fs-5 fw-normal my-1">
               <span class="text-secondary">Car capacity: </span>
-              <span class="text-black">{{data.capacity}}</span>
+              <span class="text-black">{{ dataRef.capacity }}</span>
             </p>
           </div>
           <div class="d-inline-flex gap-2">
@@ -56,18 +67,18 @@ const _edit_id = ref(buildId())
         <div class="col-auto">
           <small class="text-body-secondary">
             <span>Created: </span>
-            <span>{{formatDateTime(data.created_at)}}</span>
+            <span>{{ formatDateTime(dataRef.created_at) }}</span>
           </small>
         </div>
         <div class="col-auto">
           <small class="text-body-secondary">
             <span>Created by: </span>
-            <span>{{data.created_by}}</span>
+            <span>{{ dataRef.created_by }}</span>
           </small>
         </div>
       </div>
     </div>
-    <EditParkingModal :_id="_edit_id" :data="data"></EditParkingModal>
+    <EditParkingModal :_id="_edit_id" v-model="dataRef"></EditParkingModal>
   </div>
 </template>
 
