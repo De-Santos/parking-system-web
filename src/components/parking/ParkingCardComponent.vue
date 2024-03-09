@@ -4,6 +4,7 @@ import GoogleMap from '@/components/map/GoogleMap.vue'
 import EditParkingModal from '@/components/modal/EditParkingModal.vue'
 import { buildId, buildSmallId } from '@/scripts/html_scripts.js'
 import { ref, watch } from 'vue'
+import DeleteParkingModal from '@/components/modal/DeleteParkingModal.vue'
 
 const props = defineProps({
   data: {
@@ -14,6 +15,7 @@ const props = defineProps({
 const dataRef = ref(props.data)
 
 const _edit_id = ref(buildId())
+const _delete_id = ref(buildId())
 const googleMapKey = ref(0)
 
 function rerenderGoogleMap() {
@@ -23,6 +25,11 @@ function rerenderGoogleMap() {
 watch(dataRef, () => {
   rerenderGoogleMap()
 })
+
+function remove() {
+  //TODO add removing logic
+  console.log("remove me!")
+}
 
 </script>
 
@@ -56,7 +63,7 @@ watch(dataRef, () => {
                     :data-bs-target="`#${_edit_id}`">Edit
             </button>
             <button class="btn btn-danger" data-bs-toggle="modal"
-                    data-bs-target="#deleteParkingEntryModal">Delete
+                    :data-bs-target="'#' + _delete_id">Delete
             </button>
           </div>
         </div>
@@ -79,6 +86,7 @@ watch(dataRef, () => {
       </div>
     </div>
     <EditParkingModal :_id="_edit_id" v-model="dataRef"></EditParkingModal>
+    <DeleteParkingModal @remove-card="remove" :data="data" :id="_delete_id"></DeleteParkingModal>
   </div>
 </template>
 

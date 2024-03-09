@@ -194,31 +194,7 @@ async function getParkingList() {
     <!-- Logout Modal -->
     <LogoutModal />
 
-    <!-- Delete parking Modal -->
-    <div class="modal fade" id="deleteParkingEntryModal" data-bs-backdrop="static" data-bs-keyboard="false"
-         tabindex="-1" aria-labelledby="deleteParkingEntryModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-5" id="deleteParkingEntryModalLabel">Modal title</h1>
-          </div>
-          <div class="modal-body fw-semibold">
-            <div class="container-fluid my-auto">
-              <p class="text-start">Are you shure ?</p>
-              <p class="text-start">
-                <span>Do you want to </span>
-                <span class="text-danger">delete </span>
-                <span>this entry ?</span>
-              </p>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Yes, delete</button>
-          </div>
-        </div>
-      </div>
-    </div>
+
   </div>
   </body>
 </template>
