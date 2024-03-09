@@ -11,6 +11,7 @@ const props = defineProps({
     required: true
   }
 })
+const emit = defineEmits(['self-remove'])
 
 const dataRef = ref(props.data)
 
@@ -27,8 +28,7 @@ watch(dataRef, () => {
 })
 
 function remove() {
-  //TODO add removing logic
-  console.log("remove me!")
+  emit('self-remove')
 }
 
 </script>

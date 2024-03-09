@@ -1,5 +1,6 @@
 import { map_loader } from '@/assets/config/google_map_config.js'
-import store from '@/vuex/index.js'
+
+const n_c = { lat: 0, lng: 0 }
 
 export async function initMap(elementId, markerPosition, controlProp) {
   let map
@@ -27,46 +28,47 @@ export async function initMap(elementId, markerPosition, controlProp) {
 }
 
 
-export async function initMapSelector(elementId, center, rbi) {
+export async function initMapSelector(elementId, coordinates, rbi, am, zoom) {
   const { Map } = await map_loader.importLibrary('maps')
   const { LatLng } = await map_loader.importLibrary('core')
 
   let map
-  let m
-  let c = center
+  let m = null
+  let c = coordinates.value
 
   map = new Map(document.getElementById(elementId), {
-    zoom: 12,
-    center: center === null ? { lat: 0, lng: 0 } : center,
+    zoom: zoom,
+    center: coordinates.value === null ? n_c : coordinates.value,
     mapId: 'DEMO_MAP_ID'
   })
 
-  if (center !== null) {
-    m = await addMarker(center, map)
-    await updateCoordinates({lat: center.lat, lng: center.lng})
+  if (coordinates.value !== null && am === true) {
+    m = await addMarker(coordinates.value, map, coordinates)
   }
 
   map.addListener('click', async (event) => {
     if (m !== null) {
       m.setMap(null)
     }
-    m = await addMarker(event.latLng, map)
-    await updateCoordinates({lat: event.latLng.lat(), lng: event.latLng.lng()})
+    m = await addMarker(event.latLng, map, coordinates)
+    coordinates.value = { lat: event.latLng.lat(), lng: event.latLng.lng() }
   })
 
   document.getElementById(rbi).addEventListener('click', async (event) => {
-    event.preventDefault(); // Prevents the default behavior of reloading the page
+    event.preventDefault()
 
     if (m !== null) {
-      m.setMap(null);
+      m.setMap(null)
     }
-    m = await addMarker(c, map);
-    map.panTo(new LatLng(c.lat, c.lng));
-    await updateCoordinates({lat: c.lat, lng: c.lng})
-  });
+    if (am === true) {
+      m = await addMarker(c, map, coordinates)
+    }
+    map.panTo(new LatLng(c.lat, c.lng))
+    coordinates.value = c
+  })
 }
 
-export async function addMarker(position, map) {
+export async function addMarker(position, map, c) {
   const { AdvancedMarkerElement } = await map_loader.importLibrary('marker')
   const marker = new AdvancedMarkerElement({
     map,
@@ -74,12 +76,10 @@ export async function addMarker(position, map) {
   })
   marker.addListener('click', async () => {
     marker.setMap(null)
-    await store.dispatch('setLatLng', {lat: 0, lng: 0})
+    console.log(c.value)
+    console.log(n_c)
+    c.value = n_c
+    console.log(c.value)
   })
   return marker
-}
-
-async function updateCoordinates({lat, lng}){
-  await store.dispatch('setLatLng', {lat: lat, lng: lng})
-
 }

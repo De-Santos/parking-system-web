@@ -1,89 +1,69 @@
 <script setup>
-
-import { onBeforeMount, ref} from 'vue'
-import { Coordinates, UpdateParkingDto } from '@/data/structures.ts'
 import GoogleMapSelector from '@/components/map/GoogleMapSelector.vue'
-import { buildId, emulateClick } from '@/scripts/html_scripts.js'
+import { buildId } from '@/scripts/html_scripts.js'
+import { ref } from 'vue'
 import { useToast } from 'vue-toastification'
+import { Coordinates, ParkingDto } from '@/data/structures.ts'
 import { saveUpdatedParkingData } from '@/scripts/parking_scripts.js'
 import { checkErrorResponse } from '@/scripts/rest_scripts.js'
 
 defineProps({
-  _id: {
-    required: true,
-    default: buildId()
+  id: {
+    required: true
   }
 })
+const emit = defineEmits(['reload-data'])
 
-const model = defineModel()
-
-const title_id = ref(buildId())
-const map_id = buildId(model.value.id)
-
-
+const map_id = buildId('new')
+const zoom = ref(3)
 const r_btn_id = ref(buildId())
+const toast = useToast()
 
 const parkingName = ref()
 const owner = ref()
 const address = ref()
 const capacity = ref()
-const coordinates = ref()
-const toast = useToast()
-
-function setData() {
-  parkingName.value = model.value.parking_name
-  owner.value = model.value.owner
-  address.value = model.value.address
-  capacity.value = model.value.capacity
-  coordinates.value = model.value.coordinates
-}
-
-onBeforeMount(() => {
-  setData()
-})
-
-function resetData() {
-  emulateClick(r_btn_id.value)
-  setData()
-  toast.success("Data has been reset")
-}
+const coordinates = ref({lat: 0, lng: 0})
 
 function resetMap() {
   toast.success("Map has been reset")
 }
 
-async function saveData() {
-  const dto = new UpdateParkingDto(
-    model.value.id,
+async function createParking() {
+  const dto = new ParkingDto(
+    null,
     parkingName.value,
     owner.value,
     address.value,
     capacity.value,
-    new Coordinates(coordinates.value.lat, coordinates.value.lng)
+    new Coordinates(coordinates.value.lat, coordinates.value.lng),
+    null, null
   )
   const response = await saveUpdatedParkingData(dto)
-  checkErrorResponse(response.error, "Failed to update parking")
-  model.value = response.data
-  toast.success("Changes has been saved")
+  checkErrorResponse(response.error, "Failed to create parking")
+  if (response.error === null) {
+    toast.success('New parking has been created')
+    emit('reload-data')
+  }
 }
 
 </script>
 
 <template>
-  <div class="modal fade" :id="_id" data-bs-backdrop="static" data-bs-keyboard="false"
-       tabindex="-1" :aria-labelledby="title_id" aria-hidden="true">
+  <div :id="id" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false"
+       tabindex="-1" aria-labelledby="createParkingInfoModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
-      <form class="modal-content" autocomplete="off" @submit.prevent="saveData">
+      <form class="modal-content" autocomplete="off" @submit.prevent="createParking">
         <div class="modal-header">
-          <h1 class="modal-title fs-5" :id="title_id">
-            <span>Edit </span>
-            <span class="fw-bolder">{{ parkingName + ' ' }}</span>
-            <span>info</span>
+          <h1 class="modal-title fs-5" id="createParkingInfoModalLabel">
+            Create new parking
           </h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <div class="container-fluid">
-            <GoogleMapSelector :id="map_id" :rest_btn="r_btn_id" v-model="coordinates"
+            <GoogleMapSelector :id="map_id" :rest_btn="r_btn_id" :add_marker="false"
+                               :zoom="zoom" v-model="coordinates"
                                clazz="bd-placeholder-img map-rectangle rounded-1 my-2"></GoogleMapSelector>
             <div class="row align-items-end">
               <div class="col-3">
@@ -114,6 +94,7 @@ async function saveData() {
               </div>
             </div>
           </div>
+
 
           <div class="container my-3">
             <div class="input-group">
@@ -158,8 +139,7 @@ async function saveData() {
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-danger" @click="resetData">Reset</button>
-          <button type="submit" class="btn btn-success">Save</button>
+          <button type="submit" class="btn btn-success" data-bs-dismiss="modal">Create</button>
         </div>
       </form>
     </div>

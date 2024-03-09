@@ -1,13 +1,18 @@
 <script setup>
 
 import { onBeforeMount, ref, watch } from 'vue'
-import { setValid, validateInput } from '@/scripts/html_scripts.js'
+import { buildId, setValid, validateInput } from '@/scripts/html_scripts.js'
 import LogoutModal from '@/components/modal/LogoutModal.vue'
 import ParkingCardComponent from '@/components/parking/ParkingCardComponent.vue'
 import { fetchParkingList } from '@/scripts/parking_scripts.js'
 import { ParkingResponseHolder, SearchDto } from '@/data/structures.ts'
 import { useToast } from 'vue-toastification'
 import { checkErrorResponse } from '@/scripts/rest_scripts.js'
+import CreateParkingModal from '@/components/modal/CreateParkingModal.vue'
+import ParkingTopComponent from '@/components/parking/ParkingTopComponent.vue'
+
+const c_modal_id = ref(buildId())
+const c_modal_key = ref(0)
 
 const toast = useToast()
 const selectedSearchType = ref('street')
@@ -15,7 +20,7 @@ const searchFieldPlaceholder = ref('')
 const searchedText = ref('')
 const limit = ref(10)
 const page = ref(1)
-const dataResponse = ref(new ParkingResponseHolder(null, {body: [], limit: 0, page: 0}))
+const dataResponse = ref(new ParkingResponseHolder(null, { body: [], limit: 0, page: 0 }))
 
 watch(selectedSearchType, () => matchSearchPlaceholder(), { immediate: true })
 
@@ -37,27 +42,26 @@ function searchSubmit() {
 
 onBeforeMount(getParkingList)
 
+async function reloadData() {
+  await getParkingList()
+  c_modal_key.value += 1
+}
+
 async function getParkingList() {
   dataResponse.value = await fetchParkingList(new SearchDto(limit.value, page.value, searchedText.value))
-  checkErrorResponse(dataResponse.value.error, "Failed to load parking list")
+  checkErrorResponse(dataResponse.value.error, 'Failed to load parking list')
+}
+
+function remove(data) {
+  const i = dataResponse.value.data.body.indexOf(data)
+  if (i > -1) {
+    dataResponse.value.data.body.splice(i, 1)
+  }
 }
 </script>
 
 <template>
-  <body>
-  <div class="container mx-auto my-3 border border-success-subtle border-2 rounded-4">
-    <nav class="navbar navbar-expand nav-fill" aria-label="main-footer-bar">
-      <div class="container">
-        <router-link class="navbar-brand" to="/parking"
-                     style="--bs-navbar-brand-font-size: 1.5rem">Parking-system
-        </router-link>
-        <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="modal"
-                data-bs-target="#staticLogoutBackdrop" style="--bs-btn-bg: #b5e1b7; --bs-btn-color: #000000">
-          Logout
-        </button>
-      </div>
-    </nav>
-  </div>
+  <ParkingTopComponent></ParkingTopComponent>
 
   <div class="container my-3 mx-auto border border-2 border-dark-subtle rounded-4">
     <div class="container border-bottom border-dark-subtle my-3 rounded-top-3 header-background">
@@ -82,15 +86,17 @@ async function getParkingList() {
           <button id="searchFromSubmitButton" type="submit" class="btn btn-primary">Search</button>
         </div>
         <div class="col col-auto">
-          <button id="addRowSerchBarButton" class="btn btn-success" data-bs-toggle="modal" type="button"
-                  data-bs-target="#createParkingInfoModal">Add row
+          <button id="addRowSearchBarButton" class="btn btn-success" data-bs-toggle="modal" type="button"
+                  :data-bs-target="'#' + c_modal_id">Add row
           </button>
         </div>
       </form>
     </div>
 
     <div class="container-fluid filial-card-holder border border-1 border-dark-subtle rounded-3">
-          <ParkingCardComponent :data="data" v-for="data in dataResponse.data.body" :key="data.id"/>
+      <TransitionGroup>
+        <ParkingCardComponent :data="data" v-for="data in dataResponse.data.body" :key="data.id" @self-remove="remove(data)"/>
+      </TransitionGroup>
     </div>
 
     <nav aria-label="Page navigation example">
@@ -107,96 +113,9 @@ async function getParkingList() {
       </ul>
     </nav>
 
-    <!-- Create parking modal -->
-    <div class="modal fade" id="createParkingInfoModal" data-bs-backdrop="static" data-bs-keyboard="false"
-         tabindex="-1" aria-labelledby="createParkingInfoModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
-        <form class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-5" id="createParkingInfoModalLabel">
-              Create new parking
-            </h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <div class="container-fluid">
-              <iframe title="map" class="bd-placeholder-img map-rectangle rounded-1"
-                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d41226.4108465965!2d-122.42608631797496!3d37.76757124498742!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8085808baa631dfb%3A0xf391028f0b2ff216!2sSFMTA%20-%20Union%20Square%20Garage!5e0!3m2!1sen!2sde!4v1708886338671!5m2!1sen!2sde"
-                      loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-            </div>
-
-            <div class="container my-3">
-              <div class="input-group">
-                <div class="form-floating">
-                  <input type="text" class="form-control" id="owner-inputGroup" placeholder="owner"
-                         required>
-                  <label for="owner-inputGroup">Owner</label>
-                  <div id="ownerHelp" class="form-text mx-1">
-                    <span>Enter owner </span>
-                    <span class="fw-bolder">full name</span>
-                    <span>.</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="container my-3">
-              <div class="input-group">
-                <div class="form-floating">
-                  <input type="text" class="form-control" id="address-inputGroup"
-                         placeholder="address" required>
-                  <label for="address-inputGroup">Address</label>
-                  <div id="addressHelp" class="form-text mx-1">
-                                        <span>
-                                            Please enter
-                                        </span>
-                    <span class="fw-bolder">
-                                            parking
-                                        </span>
-                    <span>
-                                            address.
-                                        </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="container my-3">
-              <div class="input-group">
-                <div class="form-floating">
-                  <input type="number" class="form-control" id="carCapacity-inputGroup"
-                         placeholder="capacity" min="0" required>
-                  <label for="carCapacity-inputGroup">Capacity</label>
-                  <div id="carCapacityHelp" class="form-text mx-1">
-                                        <span>
-                                            Please enter
-                                        </span>
-                    <span>
-                                            parking
-                                        </span>
-                    <span class="fw-bolder">
-                                            car capacity
-                                        </span>
-                    <span>
-                                            .
-                                        </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-success">Create</button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- Logout Modal -->
-    <LogoutModal />
-
-
+    <LogoutModal></LogoutModal>
+    <CreateParkingModal :key="c_modal_key" :id="c_modal_id" @reload-data="reloadData"></CreateParkingModal>
   </div>
-  </body>
 </template>
 
 <style scoped>

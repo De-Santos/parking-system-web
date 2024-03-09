@@ -16,14 +16,14 @@ export async function fetchParkingList(sq) {
   return response
 }
 
-export async function saveUpdatedParkingData(upd) {
+export async function saveUpdatedParkingData(data) {
   syncAuth()
   const response = {
     error: null,
     data: null,
   }
   try {
-    const r = await axios.put('/parking', upd)
+    const r = await axios.post('/parking', data)
     response.data = r.data
   } catch (e) {
     response.error = e
