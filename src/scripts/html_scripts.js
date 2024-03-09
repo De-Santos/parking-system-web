@@ -33,3 +33,8 @@ function buildSmallUUID() {
   const fullUUID = uuid() // Generate a full UUID
   return fullUUID.split('-')[0]
 }
+
+export function emulateClick(id) {
+  const button = document.getElementById(id);
+  button.click()
+}

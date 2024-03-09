@@ -1,10 +1,11 @@
 <script setup>
 
-import { computed, onBeforeMount, ref } from 'vue'
+import { computed, onBeforeMount, ref} from 'vue'
 import { ParkingDto } from '@/data/structures.ts'
 import GoogleMapSelector from '@/components/map/GoogleMapSelector.vue'
-import { buildId } from '@/scripts/html_scripts.js'
+import { buildId, emulateClick } from '@/scripts/html_scripts.js'
 import store from '@/vuex/index.js'
+import { useToast } from 'vue-toastification'
 
 const props = defineProps({
   data: {
@@ -36,6 +37,7 @@ const owner = ref()
 const address = ref()
 const capacity = ref()
 const coordinates = ref()
+const toast = useToast()
 
 function setData() {
   parkingName.value = props.data.parking_name
@@ -50,6 +52,16 @@ onBeforeMount(() => {
   setData()
 })
 
+function resetData() {
+  emulateClick(r_btn_id.value)
+  setData()
+  toast.success("Data has been reset")
+}
+
+function resetMap() {
+  toast.success("Map has been reset")
+}
+
 
 </script>
 
@@ -57,7 +69,7 @@ onBeforeMount(() => {
   <div class="modal fade" :id="_id" data-bs-backdrop="static" data-bs-keyboard="false"
        tabindex="-1" :aria-labelledby="title_id" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
-      <form class="modal-content">
+      <form class="modal-content" autocomplete="off">
         <div class="modal-header">
           <h1 class="modal-title fs-5" :id="title_id">
             <span>Edit </span>
@@ -79,7 +91,7 @@ onBeforeMount(() => {
                 <input id="longitudeInput" type="text" class="form-control" :value="lng" disabled>
               </div>
               <div class="col-3">
-                <button :id="r_btn_id" class="btn btn-danger">Reset map</button>
+                <button :id="r_btn_id" class="btn btn-danger" @click="resetMap">Reset map</button>
               </div>
             </div>
           </div>
@@ -87,12 +99,12 @@ onBeforeMount(() => {
           <div class="container my-3">
             <div class="input-group">
               <div class="form-floating">
-                <input type="text" class="form-control" id="owner-inputGroup" placeholder="owner"
-                       value="{value}" required>
-                <label for="owner-inputGroup">Parking name</label>
+                <input type="text" class="form-control" id="parkingName-inputGroup" placeholder="parking_name"
+                       v-model="parkingName" required>
+                <label for="parkingName-inputGroup">Parking name</label>
                 <div id="ownerHelp" class="form-text mx-1">
-                  <span>Enter owner </span>
-                  <span class="fw-bolder">full name</span>
+                  <span>Enter </span>
+                  <span class="fw-bolder">parking name</span>
                   <span>.</span>
                 </div>
               </div>
@@ -102,8 +114,7 @@ onBeforeMount(() => {
           <div class="container my-3">
             <div class="input-group">
               <div class="form-floating">
-                <input type="text" class="form-control" id="owner-inputGroup" placeholder="owner"
-                       value="{value}" required>
+                <input type="text" class="form-control" id="owner-inputGroup" placeholder="owner" v-model="owner" required>
                 <label for="owner-inputGroup">Owner</label>
                 <div id="ownerHelp" class="form-text mx-1">
                   <span>Enter owner </span>
@@ -116,8 +127,7 @@ onBeforeMount(() => {
           <div class="container my-3">
             <div class="input-group">
               <div class="form-floating">
-                <input type="text" class="form-control" id="address-inputGroup"
-                       placeholder="address" :value="address" required>
+                <input type="text" class="form-control" id="address-inputGroup" placeholder="address" v-model="address" required>
                 <label for="address-inputGroup">Address</label>
                 <div id="addressHelp" class="form-text mx-1">
                   <span>Enter </span>
@@ -131,7 +141,7 @@ onBeforeMount(() => {
             <div class="input-group">
               <div class="form-floating">
                 <input type="number" class="form-control" id="carCapacity-inputGroup"
-                       placeholder="capacity" min="0" value="100" required>
+                       placeholder="capacity" min="0" v-model="capacity" required>
                 <label for="carCapacity-inputGroup">Capacity</label>
                 <div id="carCapacityHelp" class="form-text mx-1">
                   <span>Enter parking </span>
@@ -144,7 +154,7 @@ onBeforeMount(() => {
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-danger">Reset</button>
+          <button type="button" class="btn btn-danger" @click="resetData">Reset</button>
           <button type="submit" class="btn btn-success">Save</button>
         </div>
       </form>

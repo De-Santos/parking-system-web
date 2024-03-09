@@ -1,6 +1,6 @@
 export const config = {
   position: 'top-right',
-  timeout: 3009,
+  timeout: 4012,
   closeOnClick: true,
   pauseOnFocusLoss: true,
   pauseOnHover: true,
