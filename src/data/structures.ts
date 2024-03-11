@@ -89,13 +89,52 @@ export class SearchDto {
 export class ParkingResponseHolder {
   error: string | AxiosError
   data: {
+    body: ParkingDto[]
+    limit: number
+    page: number
+    total_rows: number
+    total_pages: number
+  }
+
+  constructor(error: string | AxiosError, data: {
     body: ParkingDto[];
     limit: number;
     page: number;
-  }
-
-  constructor(error: string | null, data: { body: ParkingDto[]; limit: number; page: number }) {
+    total_rows: number;
+    total_pages: number
+  }) {
     this.error = error
     this.data = data
+  }
+}
+
+export class PaginationDataHolder {
+  limit: number = null
+  page: number = null
+  total_rows: number = null
+  total_pages: number = null
+
+  private constructor() {
+  }
+
+  static empty() {
+    let p =  new PaginationDataHolder()
+    p.limit = 2
+    p.page = 1
+    return p
+  }
+
+  static new(limit: number, page: number, total_rows: number, total_pages: number) {
+    let p = this.empty()
+    p.limit = limit
+    p.page = page
+    p.total_rows = total_rows
+    p.total_pages = total_pages
+    return p
+  }
+
+  static of(c: ParkingResponseHolder) {
+    if (c.error != null) throw new DOMException()
+    return this.new(c.data.limit, c.data.page, c.data.total_rows, c.data.total_pages)
   }
 }

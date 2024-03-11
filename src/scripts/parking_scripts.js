@@ -1,12 +1,10 @@
 import axios from 'axios'
 import { syncAuth } from '@/assets/config/axios_config.js'
+import { ParkingResponseHolder } from '@/data/structures.ts'
 
 export async function fetchParkingList(sq) {
   syncAuth()
-  const response = {
-    error: null,
-    data: []
-  }
+  const response = new ParkingResponseHolder(null, { body: [], limit: 0, page: 1, total_rows: 0, total_pages: 1})
   try {
     let r = await axios.get(`/parking?limit=${sq.limit}&page=${sq.page}&search_text=${sq.search_text}`)
     response.data = r.data

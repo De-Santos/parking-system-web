@@ -1,26 +1,31 @@
 <script setup>
 
-import { onBeforeMount, ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { buildId, setValid, validateInput } from '@/scripts/html_scripts.js'
 import LogoutModal from '@/components/modal/LogoutModal.vue'
 import ParkingCardComponent from '@/components/parking/ParkingCardComponent.vue'
 import { fetchParkingList } from '@/scripts/parking_scripts.js'
-import { ParkingResponseHolder, SearchDto } from '@/data/structures.ts'
-import { useToast } from 'vue-toastification'
+import { PaginationDataHolder, ParkingResponseHolder, SearchDto } from '@/data/structures.ts'
 import { checkErrorResponse } from '@/scripts/rest_scripts.js'
 import CreateParkingModal from '@/components/modal/CreateParkingModal.vue'
-import ParkingTopComponent from '@/components/parking/ParkingTopComponent.vue'
+import ParkingTopComponent from '@/components/page/ParkingTopComponent.vue'
+import PaginationBar from '@/components/page/PaginationBar.vue'
+import gsap from 'gsap'
 
 const c_modal_id = ref(buildId())
 const c_modal_key = ref(0)
 
-const toast = useToast()
 const selectedSearchType = ref('street')
 const searchFieldPlaceholder = ref('')
 const searchedText = ref('')
-const limit = ref(10)
-const page = ref(1)
-const dataResponse = ref(new ParkingResponseHolder(null, { body: [], limit: 0, page: 0 }))
+const dataResponse = ref(new ParkingResponseHolder(null, {
+  body: [],
+  limit: 0,
+  page: 1,
+  total_rows: 0,
+  total_pages: 1
+}))
+const pagination = ref(PaginationDataHolder.empty())
 
 watch(selectedSearchType, () => matchSearchPlaceholder(), { immediate: true })
 
@@ -32,24 +37,27 @@ function matchSearchPlaceholder() {
   }
 }
 
-// TODO parse response and render parking cards
-// TODO add exception handling
-// TODO introduce modals to 'modals' package
-
 function searchSubmit() {
   validateInput('searchField')
 }
 
-onBeforeMount(getParkingList)
+onMounted(getParkingList)
 
 async function reloadData() {
-  await getParkingList()
+  await refresh()
   c_modal_key.value += 1
 }
 
 async function getParkingList() {
-  dataResponse.value = await fetchParkingList(new SearchDto(limit.value, page.value, searchedText.value))
+  dataResponse.value = await fetchParkingList(new SearchDto(pagination.value.limit, pagination.value.page, searchedText.value, null))
   checkErrorResponse(dataResponse.value.error, 'Failed to load parking list')
+  pagination.value = PaginationDataHolder.of(dataResponse.value)
+  console.log(pagination.value)
+}
+
+async function refresh() {
+  await getParkingList()
+  scrollToTop()
 }
 
 function remove(data) {
@@ -57,6 +65,33 @@ function remove(data) {
   if (i > -1) {
     dataResponse.value.data.body.splice(i, 1)
   }
+}
+
+function scrollToTop() {
+  window.scrollTo({
+    top: 0,
+    behavior: 'auto'
+  });
+}
+
+function onBeforeEnter(el) {
+  el.style.opacity = 0
+}
+
+function onEnter(el, done) {
+  gsap.to(el, {
+    opacity: 1,
+    delay: el.dataset.index * 0.15,
+    onComplete: done,
+  })
+}
+
+function onLeave(el, done) {
+  gsap.to(el, {
+    opacity: 0,
+    duration: 0.3,
+    onComplete: done,
+  })
 }
 </script>
 
@@ -93,26 +128,19 @@ function remove(data) {
       </form>
     </div>
 
-    <div class="container-fluid filial-card-holder border border-1 border-dark-subtle rounded-3">
-      <TransitionGroup>
-        <ParkingCardComponent :data="data" v-for="data in dataResponse.data.body" :key="data.id" @self-remove="remove(data)"/>
-      </TransitionGroup>
-    </div>
+    <TransitionGroup appear
+                     name="fade"
+                     tag="div"
+                     class="container-fluid filial-card-holder border border-1 border-dark-subtle rounded-3"
+                     :css="false"
+                     @before-enter="onBeforeEnter"
+                     @enter="onEnter"
+                     @leave="onLeave">
+      <ParkingCardComponent :data="data" v-for="data in dataResponse.data.body" :key="data.id"
+                            @self-remove="remove(data)"></ParkingCardComponent>
+    </TransitionGroup>
 
-    <nav aria-label="Page navigation example">
-      <ul class="pagination justify-content-end">
-        <li class="page-item disabled">
-          <a class="page-link">Previous</a>
-        </li>
-        <li class="page-item"><a class="page-link" href="#">1</a></li>
-        <li class="page-item"><a class="page-link" href="#">2</a></li>
-        <li class="page-item"><a class="page-link" href="#">3</a></li>
-        <li class="page-item">
-          <a class="page-link" href="#">Next</a>
-        </li>
-      </ul>
-    </nav>
-
+    <PaginationBar v-model="pagination" @page-select="refresh"></PaginationBar>
     <LogoutModal></LogoutModal>
     <CreateParkingModal :key="c_modal_key" :id="c_modal_id" @reload-data="reloadData"></CreateParkingModal>
   </div>
