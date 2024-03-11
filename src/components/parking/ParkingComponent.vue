@@ -52,7 +52,6 @@ async function getParkingList() {
   dataResponse.value = await fetchParkingList(new SearchDto(pagination.value.limit, pagination.value.page, searchedText.value, null))
   checkErrorResponse(dataResponse.value.error, 'Failed to load parking list')
   pagination.value = PaginationDataHolder.of(dataResponse.value)
-  console.log(pagination.value)
 }
 
 async function refresh() {
@@ -89,7 +88,7 @@ function onEnter(el, done) {
 function onLeave(el, done) {
   gsap.to(el, {
     opacity: 0,
-    duration: 0.3,
+    duration: 0.1,
     onComplete: done,
   })
 }
@@ -133,9 +132,10 @@ function onLeave(el, done) {
                      tag="div"
                      class="container-fluid filial-card-holder border border-1 border-dark-subtle rounded-3"
                      :css="false"
-                     @before-enter="onBeforeEnter"
-                     @enter="onEnter"
-                     @leave="onLeave">
+    >
+      <!--                     @before-enter="onBeforeEnter"-->
+      <!--                     @enter="onEnter"-->
+      <!--                     @leave="onLeave"-->
       <ParkingCardComponent :data="data" v-for="data in dataResponse.data.body" :key="data.id"
                             @self-remove="remove(data)"></ParkingCardComponent>
     </TransitionGroup>

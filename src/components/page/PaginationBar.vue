@@ -26,7 +26,10 @@ function showEllipsisBefore() {
   return (model.value.page - mdp) > 0 && (mdp + 1) !== model.value.total_pages
 }
 
-function showEllipsisAfter() {
+function showEllipsisAfter(list) {
+  if (list.length <= 2) {
+    return false
+  }
   return (model.value.total_pages - model.value.page) < 0 || (model.value.page + (mdp - 1)) < model.value.total_pages
 }
 
@@ -48,6 +51,11 @@ function teleport(num) {
 
 function refresh() {
   emits('page-select')
+}
+
+function changeLimit() {
+  model.value.page = 1
+  refresh()
 }
 
 onBeforeMount(setDefault)
@@ -88,8 +96,8 @@ function centerPage() {
 <template>
   <div class="row justify-content-end">
     <div class="col-auto align-content-end">
-      <select class="form-select" aria-label="limit select" v-model="model.limit" @change="refresh">
-        <option v-for="i in range(0, 10, 1)" :value="i" :key="i">{{ i }}</option>
+      <select class="form-select" aria-label="limit select" v-model="model.limit" @change="changeLimit">
+        <option v-for="i in range(2, 20, 4)" :value="i" :key="i">{{ i }}</option>
       </select>
     </div>
     <div class="col-auto">
@@ -107,10 +115,10 @@ function centerPage() {
           <li class="page-item" :class="{ active: isActive(p)}" v-for="p in centerPage()" :key="p">
             <button class="page-link" @click="teleport(p)">{{ p }}</button>
           </li>
-          <li class="page-item" v-if="showEllipsisAfter()">
+          <li class="page-item" v-if="showEllipsisAfter(centerPage())">
             <span class="page-link" disabled>...</span>
           </li>
-          <li class="page-item" :class="{ active: isActive(model.total_pages)}">
+          <li class="page-item" :class="{ active: isActive(model.total_pages)}" v-if="model.total_pages !== 1">
             <button class="page-link" @click="teleport(model.total_pages)">{{ model.total_pages }}</button>
           </li>
           <li class="page-item" :class="{ disabled: nextDisabled() }">
