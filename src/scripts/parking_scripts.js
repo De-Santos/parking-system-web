@@ -6,7 +6,7 @@ export async function fetchParkingList(sq) {
   syncAuth()
   const response = new ParkingResponseHolder(null, { body: [], limit: 0, page: 1, total_rows: 0, total_pages: 1})
   try {
-    let r = await axios.get(`/parking?limit=${sq.limit}&page=${sq.page}&search_text=${sq.search_text}`)
+    let r = await axios.get(`/parking?limit=${sq.limit}&page=${sq.page}&search_text=${sq.search_text}&sb=${sq.sb}`)
     response.data = r.data
   } catch (e) {
     response.error = e

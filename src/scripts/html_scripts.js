@@ -16,7 +16,9 @@ export function validateInput(id) {
   // Validation logic
   if (inputField.value.trim() === '') {
     inputField.classList.add('is-invalid')
+    return false
   }
+  return true
 }
 
 export function buildId(param) {

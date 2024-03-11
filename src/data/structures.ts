@@ -77,12 +77,14 @@ export class SearchDto {
   page: number
   search_text: string
   c: number
+  sb: string
 
-  constructor(limit: number, page: number, search_text: string, c: number) {
+  constructor(limit: number, page: number, search_text: string, c: number, sb: string) {
     this.limit = limit
     this.page = page
     this.search_text = search_text
     this.c = c
+    this.sb = sb
   }
 }
 

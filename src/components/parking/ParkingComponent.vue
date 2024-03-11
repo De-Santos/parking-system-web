@@ -1,7 +1,7 @@
 <script setup>
 
 import { onMounted, ref, watch } from 'vue'
-import { buildId, setValid, validateInput } from '@/scripts/html_scripts.js'
+import { buildId, setValid } from '@/scripts/html_scripts.js'
 import LogoutModal from '@/components/modal/LogoutModal.vue'
 import ParkingCardComponent from '@/components/parking/ParkingCardComponent.vue'
 import { fetchParkingList } from '@/scripts/parking_scripts.js'
@@ -15,7 +15,7 @@ import gsap from 'gsap'
 const c_modal_id = ref(buildId())
 const c_modal_key = ref(0)
 
-const selectedSearchType = ref('street')
+const selectedSearchType = ref('parking_name')
 const searchFieldPlaceholder = ref('')
 const searchedText = ref('')
 const dataResponse = ref(new ParkingResponseHolder(null, {
@@ -34,11 +34,13 @@ function matchSearchPlaceholder() {
     searchFieldPlaceholder.value = 'Search by street name'
   } else if (selectedSearchType.value === 'owner') {
     searchFieldPlaceholder.value = 'Search by owner name'
+  } else if (selectedSearchType.value === 'parking_name') {
+    searchFieldPlaceholder.value = 'Search by parking name'
   }
 }
 
 function searchSubmit() {
-  validateInput('searchField')
+  getParkingList()
 }
 
 onMounted(getParkingList)
@@ -49,7 +51,7 @@ async function reloadData() {
 }
 
 async function getParkingList() {
-  dataResponse.value = await fetchParkingList(new SearchDto(pagination.value.limit, pagination.value.page, searchedText.value, null))
+  dataResponse.value = await fetchParkingList(new SearchDto(pagination.value.limit, pagination.value.page, searchedText.value, null, selectedSearchType.value))
   checkErrorResponse(dataResponse.value.error, 'Failed to load parking list')
   pagination.value = PaginationDataHolder.of(dataResponse.value)
 }
@@ -103,9 +105,10 @@ function onLeave(el, done) {
     </div>
 
     <div class="search-bar-holder">
-      <form @submit.prevent="searchSubmit" class="row g-lg-2 align-items-center mx-auto" id="searchForm">
+      <form @submit.prevent="searchSubmit" class="row g-lg-2 align-items-center mx-auto" id="searchForm" autocomplete="off">
         <div class="col col-auto">
           <select class="form-select" id="searchColumnSelect" name="searchColumnSelect" v-model="selectedSearchType">
+            <option value="parking_name">Parking name</option>
             <option value="owner">Owner name</option>
             <option value="street">Street name</option>
           </select>
