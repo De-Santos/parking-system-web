@@ -1,37 +1,5 @@
 <script setup>
-// function updateSearchInputFieldType() {
-//   var selectedOption = this.value;
-//   var inputField = document.getElementById('searchedText');
-//
-//   // Change input type and placeholder based on selected option
-//   if (selectedOption === 'vrp') {
-//     inputField.type = 'text';
-//     inputField.placeholder = 'Search by vehicle registration plate';
-//   } else if (selectedOption === 'id') {
-//     inputField.type = 'number';
-//     inputField.placeholder = 'Search by Id';
-//   } else if (selectedOption === 'arrived' || selectedOption === 'expiration') {
-//     inputField.type = 'date';
-//     inputField.placeholder = 'Search by date';
-//   }
-//   // Add more conditions for other options as needed
-// };
-//
-// document.getElementById('searchColumnSelect').addEventListener('change', updateSearchInputFieldType);
-//
-// // Call the function initially to set the initial input type and placeholder
-// updateSearchInputFieldType();
-//
-// document.getElementById('searchForm').addEventListener('submit', function (event) {
-//   var inputField = document.getElementById('searchedText');
-//
-//   // Validation logic
-//   if (inputField.value.trim() === '') {
-//     // If the input is empty, prevent form submission and add error class
-//     inputField.classList.add('is-invalid');
-//     event.preventDefault();
-//   }
-// });
+
 import ParkingTopComponent from '@/components/page/ParkingTopComponent.vue'
 import 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js'
 import EditParkingModal from '@/components/modal/parking/EditParkingModal.vue'
@@ -45,6 +13,7 @@ import { fetchCarList } from '@/scripts/car_scripts.js'
 import { formatDateTime } from '@/scripts/time_scripts.js'
 import CreateCarModal from '@/components/modal/car/CreateCarModal.vue'
 import DeleteCarModal from '@/components/modal/car/DeleteCarModal.vue'
+import EditCarModal from '@/components/modal/car/EditCarModal.vue'
 
 const props = defineProps({
   id: {
@@ -59,6 +28,7 @@ const show = ref(false)
 const parking = ref({})
 const googleMapKey = ref(0)
 const createModalKey = ref(0)
+const tbodyKey = ref(0)
 
 const selectedSearchType = ref('id')
 const searchFieldPlaceholder = ref('')
@@ -123,6 +93,16 @@ function setCar(car) {
   deleteCar.value = car
 }
 
+function refreshTable() {
+  tbodyKey.value += 1
+}
+
+function update(upd, data) {
+  const i = dataResponse.value.data.body.indexOf(data)
+  dataResponse.value.data.body[i] = upd
+  refreshTable()
+}
+
 function matchSearchPlaceholder() {
   if (selectedSearchType.value === 'id') {
     searchFieldPlaceholder.value = 'Search by id'
@@ -178,13 +158,11 @@ function matchSearchPlaceholder() {
             <span class="text-secondary">Car capacity: </span>
             <span class="text-black">{{ parking.capacity }}</span>
           </p>
-        </div>
-        <GoogleMap :id="buildId(parking.id)" :marker="parking.coordinates" :key="googleMapKey"
+        </div>        <GoogleMap :id="buildId(parking.id)" :marker="parking.coordinates" :key="googleMapKey"
                    clazz="bd-placeholder-img map-collapse rounded rounded-2" :zoom="10"></GoogleMap>
       </div>
     </BCollapse>
 
-    <!-- CAR LIST -->
     <div class="container table-container border border-1 border-dark-subtle rounded-2">
       <div class="container-fluid border-bottom border-dark-subtle my-3">
         <p id="tableDescriptionText" class="my-3 text-center fs-3 fw-bold">Cars table</p>
@@ -229,10 +207,7 @@ function matchSearchPlaceholder() {
             <th scope="col" class="text-center">Setting</th>
           </tr>
           </thead>
-          <TransitionGroup appear
-                           name="fade"
-                           tag="tbody"
-          >
+          <TransitionGroup appear name="fade" tag="tbody" :key="tbodyKey">
             <tr v-for="data in dataResponse.data.body" :key="data.id">
               <td>{{ data.id }}</td>
               <td>{{ data.vrp }}</td>
@@ -242,7 +217,7 @@ function matchSearchPlaceholder() {
                 <div class="text-center">
                   <div class="d-inline-flex gap-2">
                     <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal"
-                            data-bs-target="#editCarEntryModal">edit
+                            :data-bs-target="`#edit-${data.id}`">edit
                     </button>
                     <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
                             :data-bs-target="`#${_delete_id}`" @click="setCar(data)">delete
@@ -268,70 +243,21 @@ function matchSearchPlaceholder() {
         </ul>
       </nav>
     </div>
-
-    <!-- Modal -->
-    <div class="modal fade" id="editCarEntryModal" tabindex="-1" aria-labelledby="editCarEntryModalLabel"
-         aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <form class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-5" id="editCarEntryModalLabel">Edit car entry</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <div>
-              <div class="container my-3">
-                <div class="input-group">
-                  <div class="form-floating">
-                    <input type="text" class="form-control" id="id-inputGroup" placeholder="Id"
-                           value="1032324" disabled>
-                    <label for="id-inputGroup">Id</label>
-                    <div id="IdHelp" class="form-text mx-1">
-                      Entry Id.
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="container my-3">
-                <div class="input-group">
-                  <div class="form-floating">
-                    <input type="text" class="form-control" id="vpr-inputGroup" placeholder="VRP"
-                           required>
-                    <label for="vpr-inputGroup">VPR</label>
-                    <div id="VRPHelp" class="form-text mx-1">
-                      Please write vehicle registration plate.
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="container-sm my-3">
-                <label for="floatingInputGroup2" class="form-label mx-1">Arrived</label>
-                <input type="datetime-local" class="form-control" id="floatingInputGroup2"
-                       placeholder="Arrived" required>
-              </div>
-              <div class="container my-3">
-                <label for="floatingInputGroup2" class="form-label mx-1">Expiration</label>
-                <input type="datetime-local" class="form-control" id="floatingInputGroup2"
-                       placeholder="Expiration" required>
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button id="" type="button" class="btn btn-warning">Reset</button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-success" data-bs-dismiss="modal">Save changes</button>
-          </div>
-        </form>
-      </div>
-    </div>
   </div>
+
   <CreateCarModal :id="_create_id" :parking_id="id" :key="createModalKey"
                   @reload-data="reloadData()"
                   @self-refresh="rerenderCreateModal()"></CreateCarModal>
+
+  <EditCarModal v-for="data in dataResponse.data.body" :key="data.id"
+                :id="`edit-${data.id}`" :data="data" @self-update="(upd) => update(upd, data)"></EditCarModal>
+
   <DeleteCarModal :id="_delete_id" v-model="deleteCar" @remove-entry="remove"></DeleteCarModal>
+
   <template v-if="show">
     <EditParkingModal :id="_edit_id" v-model="parking"></EditParkingModal>
   </template>
+
 </template>
 
 <style scoped>

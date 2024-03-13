@@ -41,3 +41,19 @@ export async function deleteCar(id) {
   }
   return response
 }
+
+export async function updateCar(upd) {
+  syncAuth()
+  const response = {
+    error: null,
+    data: null
+  }
+  try {
+    const r = await axios.put('/car', upd)
+    response.data = r.data
+  } catch (e) {
+    response.error = e
+  }
+  return response
+}
+
