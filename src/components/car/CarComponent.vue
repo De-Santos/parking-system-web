@@ -44,6 +44,7 @@ import { CarResponseHolder, PaginationDataHolder, SearchDto } from '@/data/struc
 import { fetchCarList } from '@/scripts/car_scripts.js'
 import { formatDateTime } from '@/scripts/time_scripts.js'
 import CreateCarModal from '@/components/modal/car/CreateCarModal.vue'
+import DeleteCarModal from '@/components/modal/car/DeleteCarModal.vue'
 
 const props = defineProps({
   id: {
@@ -53,6 +54,7 @@ const props = defineProps({
 
 const _edit_id = ref(buildId())
 const _create_id = ref(buildId())
+const _delete_id = ref(buildId())
 const show = ref(false)
 const parking = ref({})
 const googleMapKey = ref(0)
@@ -61,6 +63,8 @@ const createModalKey = ref(0)
 const selectedSearchType = ref('id')
 const searchFieldPlaceholder = ref('')
 const searchedText = ref('')
+
+const deleteCar = ref({})
 
 const pagination = ref(PaginationDataHolder.empty())
 const dataResponse = ref(new CarResponseHolder(null, {
@@ -90,7 +94,7 @@ async function preloadData() {
 
 async function loadParking() {
   const parking_r = await fetchParking(props.id)
-  checkErrorResponse(parking_r.error, 'Failed to load parking data')
+  checkErrorResponse(parking_r.error, 'Failed to delete car entry')
   if (parking_r.error === null) {
     parking.value = parking_r.data
     show.value = true
@@ -106,6 +110,17 @@ async function loadCarList() {
 async function reloadData() {
   await loadCarList()
   rerenderCreateModal()
+}
+
+function remove(data) {
+  const i = dataResponse.value.data.body.indexOf(data)
+  if (i > -1) {
+    dataResponse.value.data.body.splice(i, 1)
+  }
+}
+
+function setCar(car) {
+  deleteCar.value = car
 }
 
 function matchSearchPlaceholder() {
@@ -141,11 +156,8 @@ function matchSearchPlaceholder() {
       </div>
     </div>
 
-
-    <!-- ABOUT FILIATION -->
     <BCollapse class="collapse my-2 text-start lh-base" id="parking-info-collapse">
       <div class="card card-body">
-        <!-- FILIATION CONTENT -->
         <div class="card-header my-auto">
           <p class="my-2 text-dark text-center fs-3 fw-bold">Parking info</p>
         </div>
@@ -233,7 +245,7 @@ function matchSearchPlaceholder() {
                             data-bs-target="#editCarEntryModal">edit
                     </button>
                     <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
-                            data-bs-target="#deleteCarEntryModal">delete
+                            :data-bs-target="`#${_delete_id}`" @click="setCar(data)">delete
                     </button>
                   </div>
                 </div>
@@ -257,31 +269,6 @@ function matchSearchPlaceholder() {
       </nav>
     </div>
 
-    <!-- Modal -->
-    <div class="modal fade" id="deleteCarEntryModal" data-bs-backdrop="static" data-bs-keyboard="false"
-         tabindex="-1" aria-labelledby="deleteCarEntryModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-5" id="deleteCarEntryModalLabel">Modal title</h1>
-          </div>
-          <div class="modal-body fw-semibold">
-            <div class="container-fluid my-auto">
-              <p class="text-start">Are you shure ?</p>
-              <p class="text-start">
-                <span>Do you want to </span>
-                <span class="text-danger">delete </span>
-                <span>this entry ?</span>
-              </p>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Yes, delete</button>
-          </div>
-        </div>
-      </div>
-    </div>
     <!-- Modal -->
     <div class="modal fade" id="editCarEntryModal" tabindex="-1" aria-labelledby="editCarEntryModalLabel"
          aria-hidden="true">
@@ -341,6 +328,7 @@ function matchSearchPlaceholder() {
   <CreateCarModal :id="_create_id" :parking_id="id" :key="createModalKey"
                   @reload-data="reloadData()"
                   @self-refresh="rerenderCreateModal()"></CreateCarModal>
+  <DeleteCarModal :id="_delete_id" v-model="deleteCar" @remove-entry="remove"></DeleteCarModal>
   <template v-if="show">
     <EditParkingModal :id="_edit_id" v-model="parking"></EditParkingModal>
   </template>
