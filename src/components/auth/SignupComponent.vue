@@ -5,6 +5,7 @@ import { RegisterDto } from '@/data/structures.ts'
 import { ref } from 'vue'
 import { useToast } from 'vue-toastification'
 import router from '@/router/index.js'
+import { checkErrorResponse } from '@/scripts/rest_scripts.js'
 
 const fullName = ref('')
 const username = ref('')
@@ -25,9 +26,12 @@ async function submit() {
       return
     }
 
-    await handleRegister(dto)
-    toast.success(`User has been created!`)
-    await router.push("/login")
+    let response = await handleRegister(dto)
+    checkErrorResponse(response.error, 'Failed to login')
+    if (response.error !== null) {
+      toast.success(`User has been created!`)
+      await router.push("/login")
+    }
   }
 }
 

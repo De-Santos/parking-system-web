@@ -21,7 +21,37 @@ export async function saveUpdatedParkingData(data) {
     data: null,
   }
   try {
+    const r = await axios.put('/parking', data)
+    response.data = r.data
+  } catch (e) {
+    response.error = e
+  }
+  return response
+}
+
+export async function saveParking(data) {
+  syncAuth()
+  const response = {
+    error: null,
+    data: null,
+  }
+  try {
     const r = await axios.post('/parking', data)
+    response.data = r.data
+  } catch (e) {
+    response.error = e
+  }
+  return response
+}
+
+export async function fetchParking(id){
+  syncAuth()
+  const response = {
+    data: null,
+    error: null
+  }
+  try {
+    let r = await axios.get(`/a-parking?id=${id}`)
     response.data = r.data
   } catch (e) {
     response.error = e

@@ -12,7 +12,7 @@ const props = defineProps({
   },
   id: {
     required: true,
-    default: buildId()
+    default: buildId('default')
   }
 })
 

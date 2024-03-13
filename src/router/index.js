@@ -4,6 +4,7 @@ import ParkingComponent from '@/components/parking/ParkingComponent.vue'
 import SignupComponent from '@/components/auth/SignupComponent.vue'
 import { c_binds, cookies } from '@/assets/config/cookies.js'
 import { useToast } from 'vue-toastification'
+import CarComponent from '@/components/car/CarComponent.vue'
 
 const authRequiredBeforeEnter = (to, from, next) => {
   const token = cookies.get(c_binds.auth_token)
@@ -15,6 +16,11 @@ const authRequiredBeforeEnter = (to, from, next) => {
     next()
   }
 }
+const redirectOnParking = (to, from, next) => {
+  next('/parking')
+}
+
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -26,6 +32,13 @@ const router = createRouter({
       beforeEnter: authRequiredBeforeEnter
     },
     {
+      path: '/parking/cars/:id',
+      name: 'cars',
+      component: CarComponent,
+      props: true,
+      beforeEnter: authRequiredBeforeEnter
+    },
+    {
       path: '/login',
       name: 'login',
       component: LoginComponent
@@ -34,7 +47,12 @@ const router = createRouter({
       path: '/signup',
       name: 'signup',
       component: SignupComponent
-    }
+    },
+    {
+      path: '/',
+      name: 'home',
+      beforeEnter: redirectOnParking
+    },
   ]
 })
 

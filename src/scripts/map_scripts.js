@@ -2,7 +2,7 @@ import { map_loader } from '@/assets/config/google_map_config.js'
 
 const n_c = { lat: 0, lng: 0 }
 
-export async function initMap(elementId, markerPosition, controlProp) {
+export async function initMap(elementId, markerPosition, controlProp, zoom) {
   let map
 
   const { Map } = await map_loader.importLibrary('maps')
@@ -10,7 +10,7 @@ export async function initMap(elementId, markerPosition, controlProp) {
 
 
   map = new Map(document.getElementById(elementId), {
-    zoom: 15,
+    zoom: zoom,
     center: markerPosition,
     mapId: 'DEMO_MAP_ID',
     zoomControl: controlProp.zoomControl,

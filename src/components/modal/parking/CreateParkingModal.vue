@@ -4,7 +4,7 @@ import { buildId } from '@/scripts/html_scripts.js'
 import { ref } from 'vue'
 import { useToast } from 'vue-toastification'
 import { Coordinates, ParkingDto } from '@/data/structures.ts'
-import { saveUpdatedParkingData } from '@/scripts/parking_scripts.js'
+import { saveParking } from '@/scripts/parking_scripts.js'
 import { checkErrorResponse } from '@/scripts/rest_scripts.js'
 
 defineProps({
@@ -39,7 +39,7 @@ async function createParking() {
     new Coordinates(coordinates.value.lat, coordinates.value.lng),
     null, null
   )
-  const response = await saveUpdatedParkingData(dto)
+  const response = await saveParking(dto)
   checkErrorResponse(response.error, "Failed to create parking")
   if (response.error === null) {
     toast.success('New parking has been created')

@@ -1,10 +1,10 @@
 <script setup>
 import { formatDateTime } from '@/scripts/time_scripts.js'
 import GoogleMap from '@/components/map/GoogleMap.vue'
-import EditParkingModal from '@/components/modal/EditParkingModal.vue'
+import EditParkingModal from '@/components/modal/parking/EditParkingModal.vue'
 import { buildId, buildSmallId } from '@/scripts/html_scripts.js'
 import { ref, watch } from 'vue'
-import DeleteParkingModal from '@/components/modal/DeleteParkingModal.vue'
+import DeleteParkingModal from '@/components/modal/parking/DeleteParkingModal.vue'
 
 const props = defineProps({
   data: {
@@ -58,7 +58,7 @@ function remove() {
             </p>
           </div>
           <div class="d-inline-flex gap-2">
-            <a href="filiate-info.html" class="btn btn-primary">View data</a>
+            <router-link class="btn btn-primary" :to="`/parking/cars/${data.id}`">View data</router-link>
             <button class="btn btn-success" data-bs-toggle="modal"
                     :data-bs-target="`#${_edit_id}`">Edit
             </button>
@@ -85,7 +85,7 @@ function remove() {
         </div>
       </div>
     </div>
-    <EditParkingModal :_id="_edit_id" v-model="dataRef"></EditParkingModal>
+    <EditParkingModal :id="_edit_id" v-model="dataRef"></EditParkingModal>
     <DeleteParkingModal @remove-card="remove" :data="data" :id="_delete_id"></DeleteParkingModal>
   </div>
 </template>

@@ -9,16 +9,21 @@ export async function handleLogin(dto) {
     let r = await axios.post(`/login`, dto)
     response.token = r.data.token
   } catch (e) {
-    response.error = e.response.data.error
+    response.error = e
   }
   return response
 }
 
-export function handleRegister(dto) {
-  axios.post(`/signup`, dto)
-    .catch(err => {
-      console.log(err)
-    })
+export async function handleRegister(dto) {
+  const response = {
+    error: null
+  }
+  try {
+    await axios.post(`/signup`, dto)
+  } catch (e) {
+    response.error = e
+  }
+  return response
 }
 
 export async function usernameCheck(username) {

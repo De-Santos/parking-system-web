@@ -1,6 +1,6 @@
 <script setup>
 
-import { onBeforeMount, ref} from 'vue'
+import { onBeforeMount, ref } from 'vue'
 import { Coordinates, UpdateParkingDto } from '@/data/structures.ts'
 import GoogleMapSelector from '@/components/map/GoogleMapSelector.vue'
 import { buildId, emulateClick } from '@/scripts/html_scripts.js'
@@ -9,16 +9,16 @@ import { saveUpdatedParkingData } from '@/scripts/parking_scripts.js'
 import { checkErrorResponse } from '@/scripts/rest_scripts.js'
 
 defineProps({
-  _id: {
+  id: {
     required: true,
-    default: buildId()
+    default: buildId('default')
   }
 })
 
-const model = defineModel()
+let model = defineModel()
 
 const title_id = ref(buildId())
-const map_id = buildId(model.value.id)
+const map_id = ref(buildId())
 
 
 const r_btn_id = ref(buildId())
@@ -38,18 +38,16 @@ function setData() {
   coordinates.value = model.value.coordinates
 }
 
-onBeforeMount(() => {
-  setData()
-})
+onBeforeMount(setData)
 
 function resetData() {
   emulateClick(r_btn_id.value)
   setData()
-  toast.success("Data has been reset")
+  toast.success('Data has been reset')
 }
 
 function resetMap() {
-  toast.success("Map has been reset")
+  toast.success('Map has been reset')
 }
 
 async function saveData() {
@@ -62,15 +60,15 @@ async function saveData() {
     new Coordinates(coordinates.value.lat, coordinates.value.lng)
   )
   const response = await saveUpdatedParkingData(dto)
-  checkErrorResponse(response.error, "Failed to update parking")
+  checkErrorResponse(response.error, 'Failed to update parking')
   model.value = response.data
-  toast.success("Changes has been saved")
+  toast.success('Changes has been saved')
 }
 
 </script>
 
 <template>
-  <div class="modal fade" :id="_id" data-bs-backdrop="static" data-bs-keyboard="false"
+  <div class="modal fade" :id="id" data-bs-backdrop="static" data-bs-keyboard="false"
        tabindex="-1" :aria-labelledby="title_id" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
       <form class="modal-content" autocomplete="off" @submit.prevent="saveData">
@@ -118,7 +116,8 @@ async function saveData() {
           <div class="container my-3">
             <div class="input-group">
               <div class="form-floating">
-                <input type="text" class="form-control" id="owner-inputGroup" placeholder="owner" v-model="owner" required>
+                <input type="text" class="form-control" id="owner-inputGroup" placeholder="owner" v-model="owner"
+                       required>
                 <label for="owner-inputGroup">Owner</label>
                 <div id="ownerHelp" class="form-text mx-1">
                   <span>Enter owner </span>
@@ -131,7 +130,8 @@ async function saveData() {
           <div class="container my-3">
             <div class="input-group">
               <div class="form-floating">
-                <input type="text" class="form-control" id="address-inputGroup" placeholder="address" v-model="address" required>
+                <input type="text" class="form-control" id="address-inputGroup" placeholder="address" v-model="address"
+                       required>
                 <label for="address-inputGroup">Address</label>
                 <div id="addressHelp" class="form-text mx-1">
                   <span>Enter </span>

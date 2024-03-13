@@ -6,6 +6,7 @@ import { ref } from 'vue'
 import router from '@/router/index.js'
 import { useToast } from 'vue-toastification'
 import { setInvalid, setValid } from '@/scripts/html_scripts.js'
+import { checkErrorResponse } from '@/scripts/rest_scripts.js'
 
 const username = ref('')
 const password = ref('')
@@ -21,7 +22,8 @@ async function submit() {
     return
   }
   response.value = await handleLogin(dto)
-  if (response.value.error !== null) {
+  checkErrorResponse(response.value.error, 'Failed to login')
+  if (response.value.error !== null && response.value.error.response.status !== 401) {
     toggleLoginFailed()
     return
   }

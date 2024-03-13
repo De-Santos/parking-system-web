@@ -22,10 +22,14 @@ const props = defineProps({
       rotateControl: true,
       fullscreenControl: true
     }
+  },
+  zoom: {
+    required: false,
+    default: 15
   }
 })
 
-initMap(props.id, props.marker, props.map_control)
+initMap(props.id, props.marker, props.map_control, props.zoom)
 
 </script>
 

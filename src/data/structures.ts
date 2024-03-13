@@ -53,6 +53,21 @@ export class ParkingDto {
     this.created_at = created_at
   }
 }
+export class CarDto {
+  id: number
+  vrp: string
+  arrived: Date | string
+  expiration: Date | string
+  parking_id: number
+
+  constructor(id: number, vpr: string, arrived: Date | string, expiration: Date | string, parking_id: number) {
+    this.id = id
+    this.vrp = vpr
+    this.arrived = arrived
+    this.expiration = expiration
+    this.parking_id = parking_id
+  }
+}
 
 export class UpdateParkingDto {
   id: number
@@ -110,6 +125,28 @@ export class ParkingResponseHolder {
   }
 }
 
+export class CarResponseHolder {
+  error: string | AxiosError
+  data: {
+    body: CarDto[]
+    limit: number
+    page: number
+    total_rows: number
+    total_pages: number
+  }
+
+  constructor(error: string | AxiosError, data: {
+    body: CarDto[];
+    limit: number;
+    page: number;
+    total_rows: number;
+    total_pages: number
+  }) {
+    this.error = error
+    this.data = data
+  }
+}
+
 export class PaginationDataHolder {
   limit: number = null
   page: number = null
@@ -135,7 +172,7 @@ export class PaginationDataHolder {
     return p
   }
 
-  static of(c: ParkingResponseHolder) {
+  static of(c: ParkingResponseHolder | CarResponseHolder) {
     if (c.error != null) throw new DOMException()
     return this.new(c.data.limit, c.data.page, c.data.total_rows, c.data.total_pages)
   }
