@@ -9,7 +9,6 @@ import { checkErrorResponse } from '@/scripts/rest_scripts.js'
 import CreateParkingModal from '@/components/modal/parking/CreateParkingModal.vue'
 import ParkingTopComponent from '@/components/page/ParkingTopComponent.vue'
 import PaginationBar from '@/components/page/PaginationBar.vue'
-import gsap from 'gsap'
 
 const c_modal_id = ref(buildId())
 const c_modal_key = ref(0)
@@ -74,25 +73,6 @@ function scrollToTop() {
   });
 }
 
-function onBeforeEnter(el) {
-  el.style.opacity = 0
-}
-
-function onEnter(el, done) {
-  gsap.to(el, {
-    opacity: 1,
-    delay: el.dataset.index * 0.15,
-    onComplete: done,
-  })
-}
-
-function onLeave(el, done) {
-  gsap.to(el, {
-    opacity: 0,
-    duration: 0.1,
-    onComplete: done,
-  })
-}
 </script>
 
 <template>
