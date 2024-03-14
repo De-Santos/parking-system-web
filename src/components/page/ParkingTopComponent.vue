@@ -1,3 +1,7 @@
+<script setup>
+import LogoutModal from '@/components/modal/auth/LogoutModal.vue'
+</script>
+
 <template>
   <div class="container mx-auto my-3 border border-success-subtle border-2 rounded-4">
     <nav class="navbar navbar-expand nav-fill" aria-label="main-footer-bar">
@@ -12,6 +16,7 @@
       </div>
     </nav>
   </div>
+  <LogoutModal></LogoutModal>
 </template>
 
 <style scoped>

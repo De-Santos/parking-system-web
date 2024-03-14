@@ -2,11 +2,20 @@ import { syncAuth } from '@/assets/config/axios_config.js'
 import { CarResponseHolder } from '@/data/structures.ts'
 import axios from 'axios'
 
+function addParamsToUrl(url, params) {
+  const queryString = Object.keys(params)
+    .filter(key => key !== null && key !== '')
+    .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(params[key]))
+    .join('&');
+  return url + (url.includes('?') ? '&' : '?') + queryString;
+}
+
 export async function fetchCarList(sq) {
   syncAuth()
   const response = new CarResponseHolder(null, { body: [], limit: 0, page: 1, total_rows: 0, total_pages: 1 })
+
   try {
-    let r = await axios.get(`/cars?limit=${sq.limit}&page=${sq.page}&search_text=${sq.search_text}&sb=${sq.sb}&c=${sq.c}`)
+    let r = await axios.get(addParamsToUrl("/cars", sq))
     response.data = r.data
   } catch (e) {
     response.error = e

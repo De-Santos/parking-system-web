@@ -2,7 +2,6 @@
 
 import { onMounted, ref, watch } from 'vue'
 import { buildId, setValid } from '@/scripts/html_scripts.js'
-import LogoutModal from '@/components/modal/auth/LogoutModal.vue'
 import ParkingCardComponent from '@/components/parking/ParkingCardComponent.vue'
 import { fetchParkingList } from '@/scripts/parking_scripts.js'
 import { PaginationDataHolder, ParkingResponseHolder, SearchDto } from '@/data/structures.ts'
@@ -51,7 +50,7 @@ async function reloadData() {
 }
 
 async function getParkingList() {
-  dataResponse.value = await fetchParkingList(new SearchDto(pagination.value.limit, pagination.value.page, searchedText.value, null, selectedSearchType.value))
+  dataResponse.value = await fetchParkingList(new SearchDto(pagination.value.limit, pagination.value.page, searchedText.value, null, selectedSearchType.value, null))
   checkErrorResponse(dataResponse.value.error, 'Failed to load parking list')
   pagination.value = PaginationDataHolder.of(dataResponse.value)
 }
@@ -144,7 +143,6 @@ function onLeave(el, done) {
     </TransitionGroup>
 
     <PaginationBar v-model="pagination" @page-select="refresh"></PaginationBar>
-    <LogoutModal></LogoutModal>
     <CreateParkingModal :key="c_modal_key" :id="c_modal_id" @reload-data="reloadData"></CreateParkingModal>
   </div>
 </template>

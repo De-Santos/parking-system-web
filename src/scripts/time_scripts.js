@@ -1,11 +1,15 @@
-import { DateTime } from 'luxon';
+import { DateTime } from 'luxon'
 
-export function formatDateTime(dateTimeString)  {
-  const date = new Date(dateTimeString);
-  return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+export function formatDateTime(dateTimeString) {
+  const date = new Date(dateTimeString)
+  return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`
 }
 
 export function formatDate(date) {
-  return DateTime.fromJSDate(date).toISO({ includeOffset: true });
+  return DateTime.fromJSDate(date).toISO({ includeOffset: true })
+}
+
+export function dateToNanos(date) {
+  return date.getTime() * 1e6
 }
 

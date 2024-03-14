@@ -53,6 +53,7 @@ export class ParkingDto {
     this.created_at = created_at
   }
 }
+
 export class CarDto {
   id: number
   vrp: string
@@ -93,13 +94,15 @@ export class SearchDto {
   search_text: string
   c: number
   sb: string
+  t: string
 
-  constructor(limit: number, page: number, search_text: string, c: number, sb: string) {
+  constructor(limit: number, page: number, search_text: string, c: number, sb: string, t: string) {
     this.limit = limit
     this.page = page
     this.search_text = search_text
     this.c = c
     this.sb = sb
+    this.t = t
   }
 }
 
@@ -156,10 +159,10 @@ export class PaginationDataHolder {
   private constructor() {
   }
 
-  static empty() {
-    let p =  new PaginationDataHolder()
-    p.limit = 2
-    p.page = 1
+  static empty(limit: number = 2, page: number = 1) {
+    let p = new PaginationDataHolder()
+    p.limit = limit
+    p.page = page
     return p
   }
 

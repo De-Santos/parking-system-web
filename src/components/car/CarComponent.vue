@@ -14,6 +14,7 @@ import { formatDateTime } from '@/scripts/time_scripts.js'
 import CreateCarModal from '@/components/modal/car/CreateCarModal.vue'
 import DeleteCarModal from '@/components/modal/car/DeleteCarModal.vue'
 import EditCarModal from '@/components/modal/car/EditCarModal.vue'
+import PaginationBar from '@/components/page/PaginationBar.vue'
 
 const props = defineProps({
   id: {
@@ -30,13 +31,14 @@ const googleMapKey = ref(0)
 const createModalKey = ref(0)
 const tbodyKey = ref(0)
 
-const selectedSearchType = ref('id')
+const selectedSearchType = ref({ name: 'id', type: 'int' })
 const searchFieldPlaceholder = ref('')
 const searchedText = ref('')
+const searchFieldType = ref('')
 
 const deleteCar = ref({})
 
-const pagination = ref(PaginationDataHolder.empty())
+const pagination = ref(PaginationDataHolder.empty(20))
 const dataResponse = ref(new CarResponseHolder(null, {
   body: [],
   limit: 0,
@@ -72,9 +74,13 @@ async function loadParking() {
 }
 
 async function loadCarList() {
-  dataResponse.value = await fetchCarList(new SearchDto(10, pagination.value.page, searchedText.value, props.id, selectedSearchType.value))
+  dataResponse.value = await fetchCarList(new SearchDto(pagination.value.limit, pagination.value.page, searchedText.value, props.id, selectedSearchType.value.name, selectedSearchType.value.type))
   checkErrorResponse(dataResponse.value.error, 'Failed to load car list')
   pagination.value = PaginationDataHolder.of(dataResponse.value)
+}
+
+async function search() {
+  await loadCarList()
 }
 
 async function reloadData() {
@@ -104,15 +110,31 @@ function update(upd, data) {
 }
 
 function matchSearchPlaceholder() {
-  if (selectedSearchType.value === 'id') {
+  if (selectedSearchType.value.name === 'id') {
     searchFieldPlaceholder.value = 'Search by id'
-  } else if (selectedSearchType.value === 'vrp') {
+    searchFieldType.value = 'number'
+  } else if (selectedSearchType.value.name === 'vrp') {
     searchFieldPlaceholder.value = 'Search by vehicle registration plate'
-  } else if (selectedSearchType.value === 'arrived') {
+    searchFieldType.value = 'string'
+  } else if (selectedSearchType.value.name === 'arrived') {
     searchFieldPlaceholder.value = 'Search by arrived time'
-  } else if (selectedSearchType.value === 'expiration') {
+    searchFieldType.value = 'datetime-local'
+  } else if (selectedSearchType.value.name === 'expiration') {
     searchFieldPlaceholder.value = 'Search by expiration time'
+    searchFieldType.value = 'datetime-local'
   }
+}
+
+async function refresh() {
+  await loadCarList()
+  scrollToTop()
+}
+
+function scrollToTop() {
+  window.scrollTo({
+    top: 0,
+    behavior: 'auto'
+  });
 }
 
 </script>
@@ -158,7 +180,8 @@ function matchSearchPlaceholder() {
             <span class="text-secondary">Car capacity: </span>
             <span class="text-black">{{ parking.capacity }}</span>
           </p>
-        </div>        <GoogleMap :id="buildId(parking.id)" :marker="parking.coordinates" :key="googleMapKey"
+        </div>
+        <GoogleMap :id="buildId(parking.id)" :marker="parking.coordinates" :key="googleMapKey"
                    clazz="bd-placeholder-img map-collapse rounded rounded-2" :zoom="10"></GoogleMap>
       </div>
     </BCollapse>
@@ -169,18 +192,16 @@ function matchSearchPlaceholder() {
       </div>
 
       <div class="container-fluid select-container">
-        <form class="row g-lg-2 align-items-center mx-auto" id="searchForm">
+        <form class="row g-lg-2 align-items-center mx-auto" id="searchForm" autocomplete="off" @submit.prevent="search">
           <div class="col col-auto">
             <select class="form-select" id="searchColumnSelect" name="searchColumnSelect" v-model="selectedSearchType">
-              <option value="id" selected>Id</option>
-              <option value="vrp">VRP</option>
-              <option value="arrived">Arrived</option>
-              <option value="expiration">Expiration</option>
+              <option :value="{name: 'id', type: 'int'}" selected>Id</option>
+              <option :value="{name: 'vrp', type: 'string'}">VRP</option>
             </select>
           </div>
           <div class="col">
             <div class="input-group">
-              <input class="form-control" id="searchField" name="searchedText" :placeholder="searchFieldPlaceholder"
+              <input :type="searchFieldType" class="form-control" id="searchField" name="searchedText" :placeholder="searchFieldPlaceholder"
                      v-model="searchedText">
             </div>
           </div>
@@ -207,7 +228,7 @@ function matchSearchPlaceholder() {
             <th scope="col" class="text-center">Setting</th>
           </tr>
           </thead>
-          <TransitionGroup appear name="fade" tag="tbody" :key="tbodyKey">
+          <TransitionGroup appear name="fade" tag="tbody" :key="tbodyKey" :css="false">
             <tr v-for="data in dataResponse.data.body" :key="data.id">
               <td>{{ data.id }}</td>
               <td>{{ data.vrp }}</td>
@@ -229,19 +250,7 @@ function matchSearchPlaceholder() {
           </TransitionGroup>
         </table>
       </div>
-      <nav aria-label="Page navigation example">
-        <ul class="pagination justify-content-end">
-          <li class="page-item disabled">
-            <a class="page-link">Previous</a>
-          </li>
-          <li class="page-item"><a class="page-link" href="#">1</a></li>
-          <li class="page-item"><a class="page-link" href="#">2</a></li>
-          <li class="page-item"><a class="page-link" href="#">3</a></li>
-          <li class="page-item">
-            <a class="page-link" href="#">Next</a>
-          </li>
-        </ul>
-      </nav>
+      <PaginationBar v-model="pagination" @page-select="refresh" :start="5" :stop="51" :step="5"></PaginationBar>
     </div>
   </div>
 

@@ -1,10 +1,23 @@
 <script setup>
 
-import { onBeforeMount } from 'vue'
 import { range } from '@/scripts/scripts.js'
 import { PaginationDataHolder } from '@/data/structures.ts'
 
 
+defineProps({
+  start: {
+    required: false,
+    default: 2
+  },
+  stop: {
+    required: false,
+    default: 20
+  },
+  step: {
+    required: false,
+    default: 4
+  }
+})
 const model = defineModel({ type: PaginationDataHolder })
 const emits = defineEmits(['page-select'])
 
@@ -22,12 +35,16 @@ function isActive(page) {
   return model.value.page === page
 }
 
-function showEllipsisBefore() {
+function showEllipsisBefore(list) {
+  if ((list[0] - 1) === 1) {
+    return false
+  }
+
   return (model.value.page - mdp) > 0 && (mdp + 1) !== model.value.total_pages
 }
 
 function showEllipsisAfter(list) {
-  if (list.length <= 2) {
+  if (list.length <= 2 || (list[list.length - 1] + 1) === model.value.total_pages) {
     return false
   }
   return (model.value.total_pages - model.value.page) < 0 || (model.value.page + (mdp - 1)) < model.value.total_pages
@@ -56,13 +73,6 @@ function refresh() {
 function changeLimit() {
   model.value.page = 1
   refresh()
-}
-
-onBeforeMount(setDefault)
-
-function setDefault() {
-  model.value.limit = 2
-  model.value.page = 1
 }
 
 function centerPage() {
@@ -97,7 +107,7 @@ function centerPage() {
   <div class="row justify-content-end">
     <div class="col-auto align-content-end">
       <select class="form-select" aria-label="limit select" v-model="model.limit" @change="changeLimit">
-        <option v-for="i in range(2, 20, 4)" :value="i" :key="i">{{ i }}</option>
+        <option v-for="i in range(start, stop, step)" :value="i" :key="i">{{ i }}</option>
       </select>
     </div>
     <div class="col-auto">
@@ -109,7 +119,7 @@ function centerPage() {
           <li class="page-item" :class="{ active: isActive(1)}">
             <button class="page-link" @click="teleport(1)">1</button>
           </li>
-          <li class="page-item" v-if="showEllipsisBefore()">
+          <li class="page-item" v-if="showEllipsisBefore(centerPage())">
             <span class="page-link" disabled>...</span>
           </li>
           <li class="page-item" :class="{ active: isActive(p)}" v-for="p in centerPage()" :key="p">
