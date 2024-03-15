@@ -128,7 +128,7 @@ function centerPage() {
           <li class="page-item" v-if="showEllipsisAfter(centerPage())">
             <span class="page-link" disabled>...</span>
           </li>
-          <li class="page-item" :class="{ active: isActive(model.total_pages)}" v-if="model.total_pages !== 1">
+          <li class="page-item" :class="{ active: isActive(model.total_pages)}" v-if="model.total_pages > 1">
             <button class="page-link" @click="teleport(model.total_pages)">{{ model.total_pages }}</button>
           </li>
           <li class="page-item" :class="{ disabled: nextDisabled() }">

@@ -89,7 +89,7 @@ function scrollToTop() {
           <select class="form-select" id="searchColumnSelect" name="searchColumnSelect" v-model="selectedSearchType">
             <option value="parking_name">Parking name</option>
             <option value="owner">Owner name</option>
-            <option value="street">Street name</option>
+            <option value="address">Street name</option>
           </select>
         </div>
         <div class="col">
