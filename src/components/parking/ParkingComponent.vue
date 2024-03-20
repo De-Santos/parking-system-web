@@ -109,15 +109,8 @@ function scrollToTop() {
       </form>
     </div>
 
-    <TransitionGroup appear
-                     name="fade"
-                     tag="div"
-                     class="container-fluid filial-card-holder border border-1 border-dark-subtle rounded-3"
-                     :css="false"
-    >
-      <!--                     @before-enter="onBeforeEnter"-->
-      <!--                     @enter="onEnter"-->
-      <!--                     @leave="onLeave"-->
+    <TransitionGroup appear name="fade" tag="div" :css="false"
+                     class="container-fluid filial-card-holder border border-1 border-dark-subtle rounded-3">
       <ParkingCardComponent :data="data" v-for="data in dataResponse.data.body" :key="data.id"
                             @self-remove="remove(data)"></ParkingCardComponent>
     </TransitionGroup>

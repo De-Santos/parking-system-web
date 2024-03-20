@@ -49,7 +49,6 @@ function validateForm(dto) {
 }
 
 function toggleLoginFailed() {
-  toast.error(response.value.error)
   errorMessage.value = {
     username: "Invalid username",
     password: "Invalid password"
