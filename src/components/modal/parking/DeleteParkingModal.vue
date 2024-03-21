@@ -19,7 +19,7 @@ const props = defineProps({
 const toast = useToast()
 const emit = defineEmits(['remove-card'])
 
-async function processLogout() {
+async function processDelete() {
   const response = await deleteParking(props.data.id)
   checkErrorResponse(response.error, "Failed to delete parking")
   if (response.error === null) {
@@ -50,7 +50,7 @@ async function processLogout() {
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @click="processLogout">
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @click="processDelete">
             Yes, delete
           </button>
         </div>
