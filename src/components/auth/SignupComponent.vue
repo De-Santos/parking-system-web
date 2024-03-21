@@ -29,7 +29,7 @@ async function submit() {
 
     let response = await handleRegister(dto)
     checkErrorResponse(response.error, 'Failed to login')
-    if (response.error !== null) {
+    if (response.error === null) {
       toast.success(`User has been created!`)
       await router.push("/login")
     }
