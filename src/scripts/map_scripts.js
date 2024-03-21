@@ -76,10 +76,7 @@ export async function addMarker(position, map, c) {
   })
   marker.addListener('click', async () => {
     marker.setMap(null)
-    console.log(c.value)
-    console.log(n_c)
     c.value = n_c
-    console.log(c.value)
   })
   return marker
 }

@@ -132,7 +132,7 @@ function trimTrim() {
         <div class="d-grid gap-2">
           <button type="submit" class="btn btn-primary btn-lg mb-2">Create account</button>
         </div>
-        <p class="fw-normal">Already have account? <router-link class="text-decoration-none" to="/login">Log in</router-link></p>
+        <p class="fw-normal">Already have an account? <router-link class="text-decoration-none" to="/login">Log in</router-link></p>
       </form>
     </div>
   </div>
