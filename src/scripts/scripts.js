@@ -19,3 +19,7 @@ export function range(start, stop, step) {
 
   return result
 }
+
+export function hasSpaceInMiddle(str) {
+  return str.length % 2 !== 0 && str[Math.floor(str.length / 2)] === ' ';
+}

@@ -17,6 +17,7 @@ const errorMessage = ref({})
 const response = ref({error: null, token: null})
 
 async function submit() {
+  trimTrim()
   const dto = new LoginDto(username.value, password.value)
   if (validateForm(dto) === true) {
     return
@@ -59,6 +60,11 @@ function toggleLoginFailed() {
 
 function togglePasswordVisibility() {
   showPassword.value = !showPassword.value
+}
+
+function trimTrim() {
+  username.value = username.value.trim()
+  password.value = password.value.trim()
 }
 </script>
 

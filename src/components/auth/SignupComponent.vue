@@ -15,6 +15,7 @@ const showPassword = ref(false)
 const errorMessage = ref({})
 
 async function submit() {
+  trimTrim()
   const dto = new RegisterDto(fullName.value, username.value, password.value)
   const isValidForm = validateForm(dto)
 
@@ -60,6 +61,12 @@ function validateForm(dto) {
 
 function togglePasswordVisibility() {
   showPassword.value = !showPassword.value
+}
+
+function trimTrim() {
+  fullName.value = fullName.value.trim()
+  username.value = username.value.trim()
+  password.value = password.value.trim()
 }
 </script>
 

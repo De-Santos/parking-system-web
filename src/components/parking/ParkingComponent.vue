@@ -38,6 +38,7 @@ function matchSearchPlaceholder() {
 }
 
 function searchSubmit() {
+  pagination.value.page = 1
   getParkingList()
 }
 

@@ -80,6 +80,7 @@ async function loadCarList() {
 }
 
 async function search() {
+  pagination.value.page = 1
   await loadCarList()
 }
 

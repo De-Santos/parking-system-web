@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { hasSpaceInMiddle } from '@/scripts/scripts.js'
 
 export async function handleLogin(dto) {
   const response = {
@@ -70,6 +71,9 @@ export function validateUsername(s) {
   if (s.length > 50) {
     return 'Username can\'t exceed 50 characters'
   }
+  if (hasSpaceInMiddle(s)) {
+    return `Username can't contain spaces`
+  }
   return null
 }
 
@@ -84,6 +88,9 @@ export function validatePassword(s) {
 
   if (s.length > 50) {
     return 'Password can\'t exceed 50 characters'
+  }
+  if (hasSpaceInMiddle(s)) {
+    return `Password can't contain spaces`
   }
   return null
 }
