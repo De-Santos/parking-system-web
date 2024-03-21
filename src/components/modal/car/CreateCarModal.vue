@@ -28,8 +28,6 @@ function selfRefresh() {
   emit('self-refresh')
 }
 
-//TODO add validation for field
-
 async function createCar() {
   const dto = new CarDto(
     null,
